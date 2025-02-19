@@ -1,7 +1,6 @@
 """Plays a game of Nomination Whist"""
 
 from random import Random, randint
-from collections import deque
 
 
 class Card:
@@ -35,14 +34,14 @@ class Deck:
         """Generates a deck of cards and returns them."""
         ranks = ['2', '3', '4', '5', '6', '7',
                  '8', '9', '10', 'J', 'Q', 'K', 'A']
-        suits = ['S', 'D', 'C', 'H']  # Short suits
+        suits = ['S', 'D', 'C', 'H']
 
         return [Card(rank, suit) for suit in suits for rank in ranks]
 
 
     def draw(self, num_cards: int = 1) -> list[Card]:
-        """Removes and returns the top `num_cards` from the deck"""
-        return [self.cards.pop(0) for _ in range(min(num_cards, len(self.cards)))]
+        """Removes and returns the top x number of cards from the deck"""
+        return [self.cards.pop() for _ in range(min(num_cards, len(self.cards)))]
 
 
     def shuffle(self, seed: int = None) -> None:
@@ -94,6 +93,7 @@ class BotPlayer(PlayerBase):
 
     def make_bid(self, max_tricks: int, total_bids: int, trump_suit: str):
         """Bot makes a bid, ensuring total bids != max_tricks."""
+
         possible_bids = list(range(max_tricks + 1))  # Bids from 0 to max_tricks
         if total_bids == max_tricks and max_tricks > 0:
             # Remove the bid that would sum to max_tricks
@@ -191,6 +191,6 @@ class GameState:
 
 
 if __name__ == '__main__':
-    # Run the Game Simulation
+    # Run the Game
     game = GameState()
     game.play_game()
