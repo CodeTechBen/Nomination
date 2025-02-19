@@ -101,6 +101,7 @@ class BotPlayer(PlayerBase):
         pass
 
     def write_to_csv(self):
+        """Writes the hand, tricks won to csv"""
         pass
 
 
