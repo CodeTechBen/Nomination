@@ -100,6 +100,9 @@ class BotPlayer(PlayerBase):
         """Plays a card, prioritizing following suit, then trump, then lowest."""
         pass
 
+    def write_to_csv(self):
+        pass
+
 
 class GameState:
     """defines the Game object"""
