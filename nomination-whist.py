@@ -39,9 +39,12 @@ class Deck:
         return [Card(rank, suit) for suit in suits for rank in ranks]
 
 
-    def draw(self, num_cards: int = 1) -> list[Card]:
+    def draw(self, num_cards: int = 1):
         """Removes and returns the top x number of cards from the deck"""
+        if num_cards == 1:
+            return self.cards.pop()  # Return a single Card object
         return [self.cards.pop() for _ in range(min(num_cards, len(self.cards)))]
+
 
 
     def shuffle(self, seed: int = None) -> None:
@@ -82,6 +85,7 @@ class PlayerBase:
         self.hand = Hand()
         self.tricks_won = 0
         self.bid = 0
+        self.player_score = 0
 
     def make_bid(self, max_tricks: int, total_bids: int, trump_suit: str):
         pass
@@ -114,8 +118,35 @@ class BotPlayer(PlayerBase):
         print(f"{self.name} bids {self.bid} tricks.")
 
     def play_card(self, lead_suit: str, trump_suit: str):
-        """Plays a card, prioritizing following suit, then trump, then lowest."""
-        pass
+        """Plays a card, following suit if possible, then trump, then lowest."""
+
+        if not self.hand.cards:
+            print(f"{self.name} has no cards left to play!")
+            return None  # Handle this case in calling functions
+
+        if lead_suit:
+            # Step 1: Try to follow suit
+            follow_suit_cards = [
+                card for card in self.hand.cards if card.suit == lead_suit]
+            if follow_suit_cards:
+                played_card = min(follow_suit_cards, key=lambda card: card.value)
+            else:
+                # Step 2: No lead suit, try to play trump
+                trump_cards = [
+                    card for card in self.hand.cards if card.suit == trump_suit]
+                if trump_cards:
+                    played_card = min(trump_cards, key=lambda card: card.value)
+                else:
+                    # Step 3: No trump either, play the lowest card in hand
+                    played_card = min(self.hand.cards, key=lambda card: card.value)
+        else:
+            # First player to play: Choose the highest card
+            played_card = max(self.hand.cards, key=lambda card: card.value)
+
+        # Remove the played card from hand and return it
+        self.hand.cards.remove(played_card)
+        return played_card
+
 
     def write_to_csv(self):
         """Writes the hand, tricks won to csv"""
@@ -159,17 +190,38 @@ class GameState:
         for player in players:
             player.make_bid(max_tricks, total_bid, trump_suit)
 
+
+    def play_trick(self, players: list[PlayerBase]):
+        """Each player plays a card in turn"""
+        lead_suit = None
+        trick_cards = []  # Stores (player, card) tuples
+
+        for i, player in enumerate(players):
+            played_card = player.play_card(lead_suit, self.trump_suit)
+
+            if i == 0:  # First player determines the lead suit
+                lead_suit = played_card.suit
+
+            trick_cards.append((player, played_card))
+            print(f"{player.name} plays {played_card}")
+
     def play_round(self, players: list[PlayerBase]):
-        """each player plays a card"""
-        pass
+        tricks = self.round_info[self.round]['cards']
+        for _ in range(tricks):
+            self.play_trick(players)
+
 
     def determine_trick_winner(self):
         """Determines who wins the trick."""
         pass
 
-    def score_round(self):
+    def score_round(self, players: list[PlayerBase]):
         """Calculates each player score"""
-        pass
+        for player in players:
+            player.player_score += player.tricks_won
+            if player.tricks_won == player.bid:
+                player.player_score += 10
+                print(f'{player.name} score = {player.player_score}')
 
     def get_cards(self, deck: Deck, players: list[PlayerBase]):
         """Each player gets hand for the round"""
@@ -187,7 +239,7 @@ class GameState:
             self.trump_suit = self.round_info[self.round]['trump']
 
             self.get_cards(self.deck, self.players)
-            print(self.round)
+            print(f'round: {self.round}')
             for player in self.players:
                 print(f'{player.name}:{player.hand}')
 
@@ -195,7 +247,7 @@ class GameState:
 
             self.play_round(self.players)
 
-            self.score_round()
+            self.score_round(self.players)
 
             self.next_round(self.players)
 
