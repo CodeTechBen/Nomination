@@ -56,10 +56,20 @@ class Hand:
         self.cards = cards if cards else []
 
     def play_card(self, index: int):
+        """removes a card from the hand"""
         return self.cards.pop(index)
 
     def add_card(self, card: Card):
+        """Adds a selected card to the hand"""
         self.cards.append(card)
+
+    def get_hand_value(self):
+        """Gets the total value of the hand"""
+        value = 0
+        for card in self.cards:
+            value += card.value
+        return value
+
 
     def __repr__(self):
         return f"Hand: {self.cards}"
