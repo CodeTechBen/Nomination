@@ -80,6 +80,9 @@ class PlayerBase:
     def play_card(self, lead_suit: str, trump_suit: str):
         pass
 
+    def write_to_csv(self):
+        pass
+
     def __repr__(self):
         return f"{self.name}: {self.hand}"
 
