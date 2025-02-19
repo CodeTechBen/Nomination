@@ -1,6 +1,6 @@
 """Plays a game of Nomination Whist"""
 
-from random import Random
+from random import Random, randint
 from collections import deque
 
 
@@ -74,7 +74,7 @@ class PlayerBase:
         self.tricks_won = 0
         self.bid = 0
 
-    def make_bid(self, max_tricks: int, total_bids: int):
+    def make_bid(self, max_tricks: int, total_bids: int, trump_suit: str):
         pass
 
     def play_card(self, lead_suit: str, trump_suit: str):
@@ -92,9 +92,16 @@ class BotPlayer(PlayerBase):
     def __init__(self, name: str):
         super().__init__(name)
 
-    def make_bid(self, max_tricks: int, total_bids: int):
+    def make_bid(self, max_tricks: int, total_bids: int, trump_suit: str):
         """Bot makes a bid, ensuring total bids != max_tricks."""
-        pass
+        possible_bids = list(range(max_tricks + 1))  # Bids from 0 to max_tricks
+        if total_bids == max_tricks and max_tricks > 0:
+            # Remove the bid that would sum to max_tricks
+            possible_bids.remove(max_tricks - total_bids)
+
+        self.bid = randint(0, max_tricks) if not possible_bids else randint(
+            min(possible_bids), max(possible_bids))
+        print(f"{self.name} bids {self.bid} tricks.")
 
     def play_card(self, lead_suit: str, trump_suit: str):
         """Plays a card, prioritizing following suit, then trump, then lowest."""
@@ -134,11 +141,15 @@ class GameState:
         self.round += 1
         return self.round
 
-    def bidding_phase(self):
+    def bidding_phase(self, players: list[PlayerBase]):
         """Every player bids how many tricks they will win"""
-        pass
+        max_tricks = self.round_info[self.round]['cards']
+        total_bid = 0
+        trump_suit = self.round_info[self.round]['trump']
+        for player in players:
+            player.make_bid(max_tricks, total_bid, trump_suit)
 
-    def play_round(self):
+    def play_round(self, players: list[PlayerBase]):
         """each player plays a card"""
         pass
 
@@ -170,9 +181,9 @@ class GameState:
             for player in self.players:
                 print(f'{player.name}:{player.hand}')
 
-            self.bidding_phase()
+            self.bidding_phase(self.players)
 
-            self.play_round()
+            self.play_round(self.players)
 
             self.score_round()
 
