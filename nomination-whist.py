@@ -142,8 +142,8 @@ class GameState:
         pass
 
     def get_cards(self, deck, player_1, player_2, player_3, player_4):
-        """Each player gets hand"""
-        for i in range(self.round_info[self.round]['cards']):
+        """Each player gets hand for the round"""
+        for _ in range(self.round_info[self.round]['cards']):
             player_1.hand.add_card(deck.draw())
             player_2.hand.add_card(deck.draw())
             player_3.hand.add_card(deck.draw())
@@ -156,6 +156,7 @@ class GameState:
         player_2 = BotPlayer("Player_2")
         player_3 = BotPlayer("Player_3")
         player_4 = BotPlayer("Player_4")
+        # TODO Players should be a in a list with the first player in the list should be the dealer
 
         deck = Deck()
         deck.generate_deck()
@@ -164,10 +165,6 @@ class GameState:
 
         self.play_round()
         print(deck.cards)
-
-
-
-
 
 if __name__ == '__main__':
     # Run the Game Simulation
