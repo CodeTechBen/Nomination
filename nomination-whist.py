@@ -52,6 +52,7 @@ class Deck:
 
 
 class Hand:
+    """defines a Hand object"""
     def __init__(self, cards=None):
         self.cards = cards if cards else []
 
@@ -66,6 +67,7 @@ class Hand:
 
 
 class PlayerBase:
+    """Defines Player base class"""
     def __init__(self, name: str):
         self.name = name
         self.hand = Hand()
@@ -83,6 +85,7 @@ class PlayerBase:
 
 
 class BotPlayer(PlayerBase):
+    """defines a Bot class"""
     def __init__(self, name: str):
         super().__init__(name)
 
@@ -96,6 +99,7 @@ class BotPlayer(PlayerBase):
 
 
 class GameState:
+    """defines the Game object"""
     def __init__(self, num_players=4):
         self.players = [BotPlayer(f"Bot {i+1}") for i in range(num_players)]
         self.deck = Deck()
@@ -134,6 +138,7 @@ class GameState:
         pass
 
     def score_round(self):
+        """Calculates each player score"""
         pass
 
     def get_cards(self, deck, player_1, player_2, player_3, player_4):
