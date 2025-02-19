@@ -120,8 +120,10 @@ class GameState:
         }
 
 
-    def next_round(self):
+    def next_round(self, players):
         """moves to the next round"""
+        for player in players:
+            player.hand = Hand()
         self.round += 1
         return self.round
 
@@ -133,7 +135,7 @@ class GameState:
         """each player plays a card"""
         pass
 
-    def determine_trick_winner(self, trick):
+    def determine_trick_winner(self):
         """Determines who wins the trick."""
         pass
 
@@ -141,30 +143,34 @@ class GameState:
         """Calculates each player score"""
         pass
 
-    def get_cards(self, deck, player_1, player_2, player_3, player_4):
+    def get_cards(self, deck: Deck, players: list[PlayerBase]):
         """Each player gets hand for the round"""
         for _ in range(self.round_info[self.round]['cards']):
-            player_1.hand.add_card(deck.draw())
-            player_2.hand.add_card(deck.draw())
-            player_3.hand.add_card(deck.draw())
-            player_4.hand.add_card(deck.draw())
+            for player in players:
+                player.hand.add_card(deck.draw())
 
 
     def play_game(self):
         """Plays the game"""
-        player_1 = BotPlayer("Player_1")
-        player_2 = BotPlayer("Player_2")
-        player_3 = BotPlayer("Player_3")
-        player_4 = BotPlayer("Player_4")
-        # TODO Players should be a in a list with the first player in the list should be the dealer
+        while self.round <= self.max_rounds:
+            self.deck = Deck()
+            self.deck.shuffle()
 
-        deck = Deck()
-        deck.generate_deck()
-        deck.shuffle()
-        self.get_cards(deck, player_1, player_2, player_3, player_4)
+            self.trump_suit = self.round_info[self.round]['trump']
 
-        self.play_round()
-        print(deck.cards)
+            self.get_cards(self.deck, self.players)
+            print(self.round)
+            for player in self.players:
+                print(f'{player.name}:{player.hand}')
+
+            self.bidding_phase()
+
+            self.play_round()
+
+            self.score_round()
+
+            self.next_round(self.players)
+
 
 if __name__ == '__main__':
     # Run the Game Simulation
